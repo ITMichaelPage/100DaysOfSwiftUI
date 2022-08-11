@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showingScore = false
-    @State private var scoreTitle = ""
-    
+    @State private var showingScoreAlert = false
+    @State private var scoreAlertTitle = ""
+    @State private var scoreAlertMessage = ""
+    @State private var showingEndOfGameAlert = false
+    @State private var currentScore = 0
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
-    
+    @State private var currentRound = 1
+
+    private var roundsPerGame = 8
+
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -58,34 +63,65 @@ struct ContentView: View {
                 Spacer()
                 Spacer()
                 
-                Text("Score: ???")
-                    .foregroundColor(.white)
-                    .font(.title.bold())
+                HStack(spacing: 26) {
+                    Text("Score: \(currentScore)")
+                        .foregroundColor(.white)
+                        .font(.title.bold())
+                    
+                    Text("Round: \(currentRound)/\(roundsPerGame)")
+                        .foregroundColor(.white)
+                        .font(.title.bold())
+                }
                 
                 Spacer()
             }
             .padding()
         }
-        .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+        .alert(scoreAlertTitle, isPresented: $showingScoreAlert) {
+            Button("Continue", action: newRound)
         } message: {
-            Text("Your score is ???")
+            Text(scoreAlertMessage)
+        }
+        .alert("Score Summary", isPresented: $showingEndOfGameAlert) {
+            Button("Start New Game", action: resetGame)
+        } message: {
+            Text("You guessed \(currentScore) out of \(roundsPerGame) correct!")
         }
     }
     
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
-            scoreTitle = "Correct"
+            currentScore += 1
+            scoreAlertTitle = "Correct"
+            scoreAlertMessage = "Your score is \(currentScore)."
         } else {
-            scoreTitle = "Wrong"
+            scoreAlertTitle = "Wrong"
+            scoreAlertMessage = "That's the flag of \(countries[number])."
         }
         
-        showingScore = true
+        
+        
+        if currentRound >= roundsPerGame {
+            showingEndOfGameAlert = true
+        } else {
+            showingScoreAlert = true
+        }
     }
     
-    func askQuestion() {
+    func shuffleFlagsAndSelectAnswer() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+    }
+    
+    func resetGame() {
+        shuffleFlagsAndSelectAnswer()
+        currentScore = 0
+        currentRound = 1
+    }
+    
+    func newRound() {
+        shuffleFlagsAndSelectAnswer()
+        currentRound += 1
     }
 }
 
