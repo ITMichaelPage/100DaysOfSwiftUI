@@ -18,6 +18,20 @@ struct FlagImage: View {
     }
 }
 
+struct ProminentTitle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(Font.largeTitle)
+            .foregroundColor(Color(red: 220/255, green: 232/255, blue: 245/255))
+    }
+}
+
+extension View {
+    func prominentTitled() -> some View {
+        modifier(ProminentTitle())
+    }
+}
+
 struct ContentView: View {
     @State private var showingScoreAlert = false
     @State private var scoreAlertTitle = ""
@@ -73,13 +87,9 @@ struct ContentView: View {
                 
                 HStack(spacing: 26) {
                     Text("Score: \(currentScore)")
-                        .foregroundColor(.white)
-                        .font(.title.bold())
-                    
                     Text("Round: \(currentRound)/\(roundsPerGame)")
-                        .foregroundColor(.white)
-                        .font(.title.bold())
                 }
+                .prominentTitled()
                 
                 Spacer()
             }
