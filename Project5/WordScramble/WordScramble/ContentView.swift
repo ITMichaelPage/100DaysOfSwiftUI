@@ -16,12 +16,38 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var currentScore = 0
+    
+    var navigationTitle: String {
+        "\(rootWord) - Score: \(currentScore)"
+    }
+    
+    var wordScore: Int {
+        let remainingLetters = rootWord.count - newWord.count
+        
+        switch remainingLetters {
+        case 0:
+            return 500
+        case 1:
+            return 400
+        case 2:
+            return 300
+        case 3:
+            return 200
+        case 4:
+            return 100
+        default:
+            return 50
+        }
+    }
+    
     var body: some View {
         NavigationView {
             List {
                 Section {
                     TextField("Enter your word", text: $newWord)
                         .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
                 
                 Section {
@@ -33,13 +59,16 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle(rootWord)
+            .navigationTitle(navigationTitle)
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage)
+            }
+            .toolbar {
+                Button("New Word", action: startGame)
             }
         }
     }
@@ -54,7 +83,7 @@ struct ContentView: View {
         }
         
         guard isPossible(word: answer) else {
-            wordError(title: "Word not possible", message: "You can't spell that word from '\(rootWord)'")
+            wordError(title: "Word not possible", message: "You can't spell that word from '\(rootWord)'.")
             return
         }
         
@@ -63,13 +92,24 @@ struct ContentView: View {
             return
         }
         
+        guard isValidLength(word: answer) else {
+            wordError(title: "Word not long enough", message: "Word must be at least three characters long.")
+            return
+        }
+        
+        currentScore += wordScore
+        
+        let listEntry = "\(answer) - \(wordScore)"
         withAnimation {
-            usedWords.insert(answer, at: 0)
+            usedWords.insert(listEntry, at: 0)
         }
         newWord = ""
     }
     
     func startGame() {
+        usedWords = []
+        currentScore = 0
+        
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
                 let allWords = startWords.components(separatedBy: "\n")
@@ -105,6 +145,10 @@ struct ContentView: View {
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
         
         return misspelledRange.location == NSNotFound
+    }
+    
+    func isValidLength(word: String) -> Bool {
+        word.count >= 3
     }
     
     func wordError(title: String, message: String) {
