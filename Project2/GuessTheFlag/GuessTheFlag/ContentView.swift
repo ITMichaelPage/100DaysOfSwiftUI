@@ -41,6 +41,8 @@ struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     @State private var currentRound = 1
+    @State private var animationAmount = 0.0
+    @State private var selectedFlagNumber: Int? = nil
 
     private var roundsPerGame = 8
 
@@ -71,10 +73,17 @@ struct ContentView: View {
                     
                     ForEach(0..<3) { number in
                         Button {
+                            self.selectedFlagNumber = number
+                            withAnimation(
+                                .interpolatingSpring(stiffness: 30, damping: 8)
+                            ) {
+                                self.animationAmount += 360
+                            }
                             flagTapped(number)
                         } label: {
                             FlagImage(country: countries[number])
                         }
+                        .rotation3DEffect(.degrees(self.selectedFlagNumber == number ? self.animationAmount : 0), axis: (x: 0, y: 1, z: 0))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -116,8 +125,6 @@ struct ContentView: View {
             scoreAlertTitle = "Wrong"
             scoreAlertMessage = "That's the flag of \(countries[number])."
         }
-        
-        
         
         if currentRound >= roundsPerGame {
             showingEndOfGameAlert = true
