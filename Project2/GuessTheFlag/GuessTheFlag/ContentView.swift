@@ -43,6 +43,9 @@ struct ContentView: View {
     @State private var currentRound = 1
     @State private var animationAmount = 0.0
     @State private var selectedFlagNumber: Int? = nil
+    private var aFlagWasTapped: Bool {
+        selectedFlagNumber != nil
+    }
 
     private var roundsPerGame = 8
 
@@ -84,6 +87,7 @@ struct ContentView: View {
                             FlagImage(country: countries[number])
                         }
                         .rotation3DEffect(.degrees(self.selectedFlagNumber == number ? self.animationAmount : 0), axis: (x: 0, y: 1, z: 0))
+                        .opacity(self.aFlagWasTapped && self.selectedFlagNumber != number ? 0.25 : 1.0)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -136,6 +140,7 @@ struct ContentView: View {
     func shuffleFlagsAndSelectAnswer() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        selectedFlagNumber = nil
     }
     
     func resetGame() {
