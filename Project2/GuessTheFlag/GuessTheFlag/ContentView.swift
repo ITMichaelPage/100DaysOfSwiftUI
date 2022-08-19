@@ -43,9 +43,7 @@ struct ContentView: View {
     @State private var currentRound = 1
     @State private var animationAmount = 0.0
     @State private var selectedFlagNumber: Int? = nil
-    private var aFlagWasTapped: Bool {
-        selectedFlagNumber != nil
-    }
+    @State private var aFlagWasTapped: Bool = false
 
     private var roundsPerGame = 8
 
@@ -76,6 +74,7 @@ struct ContentView: View {
                     
                     ForEach(0..<3) { number in
                         Button {
+                            self.aFlagWasTapped = true
                             self.selectedFlagNumber = number
                             withAnimation(
                                 .interpolatingSpring(stiffness: 30, damping: 8)
@@ -88,6 +87,8 @@ struct ContentView: View {
                         }
                         .rotation3DEffect(.degrees(self.selectedFlagNumber == number ? self.animationAmount : 0), axis: (x: 0, y: 1, z: 0))
                         .opacity(self.aFlagWasTapped && self.selectedFlagNumber != number ? 0.25 : 1.0)
+                        .scaleEffect(self.aFlagWasTapped && self.selectedFlagNumber != number ? 0.8 : 1.0)
+                        .animation(.easeInOut(duration: 0.5), value: self.aFlagWasTapped)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -152,6 +153,7 @@ struct ContentView: View {
     func newRound() {
         shuffleFlagsAndSelectAnswer()
         currentRound += 1
+        aFlagWasTapped = false
     }
 }
 
