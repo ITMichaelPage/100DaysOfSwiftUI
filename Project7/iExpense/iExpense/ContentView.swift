@@ -7,6 +7,31 @@
 
 import SwiftUI
 
+struct ExpenseItemHighlight: ViewModifier {
+    var item: ExpenseItem
+    
+    func body(content: Content) -> some View {
+        var textColor: Color
+        switch item.amount {
+        case 100..<1000:
+            textColor = .yellow
+        case 1000...:
+            textColor = .red
+        default:
+            textColor = .black
+        }
+        
+        return content
+            .foregroundColor(textColor)
+    }
+}
+
+extension View {
+    func expenseItemHighlighted(item: ExpenseItem) -> some View {
+        modifier(ExpenseItemHighlight(item: item))
+    }
+}
+
 struct ContentView: View {
     @StateObject var expenses = Expenses()
     @State private var showingAddExpense = false
@@ -26,6 +51,7 @@ struct ContentView: View {
                         
                         Text(item.amount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
                     }
+                    .expenseItemHighlighted(item: item)
                 }
                 .onDelete(perform: removeItems)
             }
