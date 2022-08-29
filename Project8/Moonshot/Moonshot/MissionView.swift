@@ -37,9 +37,7 @@ struct MissionView: View {
                         }
 
                         
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.lightBackground)
+                        CustomDivider()
                             .padding(.bottom)
 
                         Text("Mission Highlights")
@@ -48,9 +46,7 @@ struct MissionView: View {
                         
                         Text(mission.description)
                         
-                        Rectangle()
-                            .frame(height: 2)
-                            .foregroundColor(.lightBackground)
+                        CustomDivider()
                             .padding(.vertical)
                         
                         Text("Crew")
@@ -117,5 +113,13 @@ struct MissionView_Previews: PreviewProvider {
     static var previews: some View {
         MissionView(mission: missions[0], astronauts: astronauts)
             .preferredColorScheme(.dark)
+    }
+}
+
+struct CustomDivider: View {
+    var body: some View {
+        Rectangle()
+            .frame(height: 2)
+            .foregroundColor(.lightBackground)
     }
 }
